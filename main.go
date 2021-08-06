@@ -1,22 +1,14 @@
-package tal
+package main
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"tal/events"
+	"tal/structs"
 )
 
-type MessageSender struct {
-	UserId int `json:"user_id"`
-}
 
-type Event struct {
-	MessageType string `json:"message_type"`
-	PostType string `json:"post_type"`
-	RawMessage string `json:"raw_message"`
-	Message string `json:"message"`
-	Sender MessageSender
-}
 
 func main() {
 	router := gin.Default()
@@ -28,13 +20,23 @@ func main() {
 			fmt.Println(err.Error())
 		}
 
-		p := &Event{}
+		p := &structs.Event{}
 		err = json.Unmarshal([]byte(data), p)
 		fmt.Println(err)
 		fmt.Println(*p)
 
+		evt:=&events.EventsExecutor{}
+
+
+
 		if p.MessageType=="group"{
-			fmt.Println(fmt.Sprintf("群消息:发送人%d 消息%s",p.Sender.UserId,p.Message))
+
+			switch p.PostType {
+			case "message":
+				evt.OnGroupMessage(*p)
+			}
+
+
 		}
 
 		//
